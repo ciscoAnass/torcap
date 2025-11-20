@@ -1,0 +1,10 @@
+{
+    "interval_seconds": 10,
+    "screenshot_folder": "C:/Users/CiscoAnass/Pictures/Security",
+    "enable_mega": true,
+    "mega_email": "YOUR_MEGA_EMAIL",
+    "mega_password": "YOUR_MEGA+PASSWORD",
+    "upload_batch_size": 10,
+    "max_folder_size_mb": 500,
+    "log_file": "screen_guard.log"
+}
