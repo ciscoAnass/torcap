@@ -1,0 +1,4 @@
+mss
+requests
+pyinstaller
+mega.py
