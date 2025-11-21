@@ -183,84 +183,129 @@ def validate_identifier(value: str) -> bool:
 # ==========================================================
 #  HTML TEMPLATES (white UI + click-to-preview)
 # ==========================================================
-
 LOGIN_TEMPLATE = """
 <!doctype html>
 <html lang="en">
 <head>
   <meta charset="utf-8">
-  <title>Login – {{ site_name }}</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Sign in – {{ site_name }}</title>
   <style>
-    body {
+    * {
       margin: 0;
-      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-      background: #f9fafb;
-      color: #111827;
+      padding: 0;
+      box-sizing: border-box;
     }
-    header {
-      background: #2563eb;
-      color: white;
-      padding: 16px 24px;
+    body {
+      font-family: 'Segoe UI', 'Google Sans', Roboto, -apple-system, BlinkMacSystemFont, sans-serif;
+      background: #ffffff;
+      color: #202124;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
-    header h1 { margin: 0; font-size: 20px; }
-    main { padding: 24px; }
-    .box {
-      max-width: 360px;
-      margin: 60px auto;
-      background: white;
-      padding: 24px;
-      border-radius: 12px;
-      border: 1px solid #e5e7eb;
-      box-shadow: 0 10px 20px rgba(0,0,0,0.05);
+    .login-container {
+      width: 100%;
+      max-width: 450px;
+      padding: 48px 40px 36px;
+      background: #fff;
+      border: 1px solid #dadce0;
+      border-radius: 8px;
+      box-shadow: 0 1px 3px rgba(60, 64, 67, 0.3);
     }
-    .box h2 { margin-top: 0; }
+    .logo {
+      text-align: center;
+      margin-bottom: 24px;
+    }
+    .logo h1 {
+      font-size: 24px;
+      font-weight: 400;
+      color: #202124;
+      letter-spacing: -0.5px;
+    }
+    .logo p {
+      font-size: 16px;
+      color: #5f6368;
+      margin-top: 8px;
+    }
+    .form-group {
+      margin-bottom: 24px;
+    }
     label {
       display: block;
-      margin: 8px 0 4px;
       font-size: 14px;
+      color: #5f6368;
+      margin-bottom: 8px;
+      font-weight: 500;
     }
     input[type="text"], input[type="password"] {
       width: 100%;
-      padding: 8px;
-      border-radius: 6px;
-      border: 1px solid #d1d5db;
-      font-size: 14px;
+      padding: 13px 15px;
+      border: 1px solid #dadce0;
+      border-radius: 4px;
+      font-size: 16px;
+      color: #202124;
+      transition: all 0.2s;
+      background: #fff;
     }
-    button {
-      margin-top: 12px;
-      padding: 8px 14px;
-      border-radius: 8px;
-      border: none;
-      background: #2563eb;
+    input[type="text"]:focus, input[type="password"]:focus {
+      outline: none;
+      border-color: #1a73e8;
+      box-shadow: 0 0 0 2px rgba(26, 115, 232, 0.1);
+    }
+    .btn-primary {
+      width: 100%;
+      padding: 14px;
+      background: #1a73e8;
       color: white;
-      font-weight: 600;
-      cursor: pointer;
-    }
-    button:hover { background: #1d4ed8; }
-    .error {
-      color: #b91c1c;
+      border: none;
+      border-radius: 4px;
       font-size: 14px;
-      margin-top: 8px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s;
+      letter-spacing: 0.25px;
+    }
+    .btn-primary:hover {
+      background: #1765cc;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+    }
+    .btn-primary:active {
+      background: #1557b0;
+    }
+    .error {
+      background: #fce8e6;
+      color: #d93025;
+      padding: 12px 16px;
+      border-radius: 4px;
+      font-size: 14px;
+      margin-bottom: 20px;
+      border-left: 3px solid #d93025;
     }
   </style>
 </head>
 <body>
-  <header><h1>{{ site_name }}</h1></header>
-  <main>
-    <div class="box">
-      <h2>Login</h2>
-      {% if error %}
-        <p class="error">{{ error }}</p>
-      {% endif %}
-      <form method="post">
-        <label>Username</label>
-        <input type="text" name="username" autofocus>
-        <label>Password</label>
-        <input type="password" name="password">
-        <button type="submit">Sign in</button>
-      </form>
+  <div class="login-container">
+    <div class="logo">
+      <h1>{{ site_name }}</h1>
+      <p>Sign in to continue</p>
     </div>
-  </main>
+    {% if error %}
+      <div class="error">{{ error }}</div>
+    {% endif %}
+    <form method="post">
+      <div class="form-group">
+        <label for="username">Username</label>
+        <input type="text" id="username" name="username" autofocus required>
+      </div>
+      <div class="form-group">
+        <label for="password">Password</label>
+        <input type="password" id="password" name="password" required>
+      </div>
+      <button type="submit" class="btn-primary">Sign in</button>
+    </form>
+  </div>
 </body>
 </html>
 """
@@ -270,96 +315,187 @@ INDEX_TEMPLATE = """
 <html lang="en">
 <head>
   <meta charset="utf-8">
-  <title>Users – {{ site_name }}</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{{ site_name }}</title>
   <style>
-    body {
+    * {
       margin: 0;
-      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-      background: #f9fafb;
-      color: #111827;
+      padding: 0;
+      box-sizing: border-box;
     }
-    header {
-      background: #2563eb;
-      color: white;
+    body {
+      font-family: 'Segoe UI', 'Google Sans', Roboto, -apple-system, BlinkMacSystemFont, sans-serif;
+      background: #ffffff;
+      color: #202124;
+      min-height: 100vh;
+    }
+    .header {
+      background: #ffffff;
+      border-bottom: 1px solid #e8eaed;
       padding: 16px 24px;
       display: flex;
-      justify-content: space-between;
       align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 10;
     }
-    header h1 { margin: 0; font-size: 20px; }
-    header a {
-      color: white;
-      text-decoration: none;
+    .header-left {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+    .header h1 {
+      font-size: 22px;
+      font-weight: 400;
+      color: #5f6368;
+      letter-spacing: -0.5px;
+    }
+    .header-right {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+    .btn-logout {
+      padding: 8px 24px;
+      background: transparent;
+      color: #1a73e8;
+      border: 1px solid #dadce0;
+      border-radius: 4px;
       font-size: 14px;
-      opacity: 0.9;
-    }
-    header a:hover { opacity: 1; }
-    main {
-      padding: 24px;
-      max-width: 900px;
-      margin: 0 auto;
-    }
-    .card {
-      background: white;
-      border-radius: 12px;
-      padding: 16px 20px;
-      border: 1px solid #e5e7eb;
-      box-shadow: 0 10px 20px rgba(0,0,0,0.04);
-    }
-    .card h2 { margin-top: 0; }
-    ul {
-      list-style: none;
-      padding-left: 0;
-      margin: 0;
-    }
-    li + li { margin-top: 6px; }
-    .pill {
-      display: inline-block;
-      padding: 2px 8px;
-      border-radius: 999px;
-      font-size: 12px;
-      background: #eff6ff;
-      color: #1d4ed8;
-      margin-right: 8px;
-    }
-    a.link {
-      color: #2563eb;
-      text-decoration: none;
       font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s;
+      text-decoration: none;
+      display: inline-block;
     }
-    a.link:hover { text-decoration: underline; }
-    .meta {
+    .btn-logout:hover {
+      background: #f8f9fa;
+      border-color: #1a73e8;
+    }
+    .main-container {
+      max-width: 1440px;
+      margin: 0 auto;
+      padding: 32px 24px;
+    }
+    .section-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 24px;
+    }
+    .section-title {
+      font-size: 28px;
+      font-weight: 400;
+      color: #202124;
+    }
+    .stats {
+      font-size: 14px;
+      color: #5f6368;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 16px;
+    }
+    .user-card {
+      background: #ffffff;
+      border: 1px solid #e8eaed;
+      border-radius: 8px;
+      padding: 20px;
+      transition: all 0.2s;
+      cursor: pointer;
+      text-decoration: none;
+      color: inherit;
+      display: block;
+    }
+    .user-card:hover {
+      box-shadow: 0 1px 3px rgba(60, 64, 67, 0.3), 0 4px 8px rgba(60, 64, 67, 0.15);
+      border-color: #dadce0;
+    }
+    .user-icon {
+      width: 48px;
+      height: 48px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-size: 20px;
+      font-weight: 500;
+      margin-bottom: 16px;
+    }
+    .user-name {
+      font-size: 16px;
+      font-weight: 500;
+      color: #202124;
+      margin-bottom: 8px;
+    }
+    .user-stats {
+      display: flex;
+      gap: 16px;
       font-size: 13px;
-      color: #6b7280;
-      margin-top: 4px;
+      color: #5f6368;
+    }
+    .stat-item {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .empty-state {
+      text-align: center;
+      padding: 80px 20px;
+      color: #5f6368;
+    }
+    .empty-state-icon {
+      font-size: 64px;
+      margin-bottom: 16px;
+      opacity: 0.3;
+    }
+    .empty-state-text {
+      font-size: 16px;
     }
   </style>
 </head>
 <body>
-  <header>
-    <h1>{{ site_name }}</h1>
-    <a href="{{ url_for('logout') }}">Logout</a>
-  </header>
-  <main>
-    <div class="card">
-      <h2>Users</h2>
-      <ul>
-      {% if users %}
-        {% for u in users %}
-          <li>
-            <span class="pill">user</span>
-            <a class="link" href="{{ url_for('view_user', username=u.username) }}">{{ u.username }}</a>
-            <div class="meta">
-              {{ u.days }} day(s), {{ u.files }} screenshot(s)
-            </div>
-          </li>
-        {% endfor %}
-      {% else %}
-        <li>No users yet.</li>
-      {% endif %}
-      </ul>
+  <header class="header">
+    <div class="header-left">
+      <h1>{{ site_name }}</h1>
     </div>
-  </main>
+    <div class="header-right">
+      <a href="{{ url_for('logout') }}" class="btn-logout">Sign out</a>
+    </div>
+  </header>
+
+  <div class="main-container">
+    <div class="section-header">
+      <h2 class="section-title">Users</h2>
+      {% if users %}
+      <div class="stats">{{ users|length }} user{% if users|length != 1 %}s{% endif %}</div>
+      {% endif %}
+    </div>
+
+    {% if users %}
+      <div class="grid">
+        {% for u in users %}
+          <a href="{{ url_for('view_user', username=u.username) }}" class="user-card">
+            <div class="user-icon">{{ u.username[0]|upper }}</div>
+            <div class="user-name">{{ u.username }}</div>
+            <div class="user-stats">
+              <span class="stat-item">{{ u.days }} days</span>
+              <span class="stat-item">{{ u.files }} photos</span>
+            </div>
+          </a>
+        {% endfor %}
+      </div>
+    {% else %}
+      <div class="empty-state">
+        <div class="empty-state-icon">📷</div>
+        <div class="empty-state-text">No users yet</div>
+      </div>
+    {% endif %}
+  </div>
 </body>
 </html>
 """
@@ -369,94 +505,182 @@ USER_TEMPLATE = """
 <html lang="en">
 <head>
   <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>{{ username }} – {{ site_name }}</title>
   <style>
-    body {
+    * {
       margin: 0;
-      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-      background: #f9fafb;
-      color: #111827;
+      padding: 0;
+      box-sizing: border-box;
     }
-    header {
-      background: #2563eb;
-      color: white;
+    body {
+      font-family: 'Segoe UI', 'Google Sans', Roboto, -apple-system, BlinkMacSystemFont, sans-serif;
+      background: #ffffff;
+      color: #202124;
+      min-height: 100vh;
+    }
+    .header {
+      background: #ffffff;
+      border-bottom: 1px solid #e8eaed;
       padding: 16px 24px;
       display: flex;
-      justify-content: space-between;
       align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 10;
     }
-    header h1 { margin: 0; font-size: 20px; }
-    header a {
-      color: white;
+    .header-left {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+    .btn-back {
+      padding: 8px;
+      background: transparent;
+      border: none;
+      color: #5f6368;
+      cursor: pointer;
+      font-size: 20px;
       text-decoration: none;
+      display: flex;
+      align-items: center;
+      transition: color 0.2s;
+    }
+    .btn-back:hover {
+      color: #202124;
+    }
+    .header h1 {
+      font-size: 22px;
+      font-weight: 400;
+      color: #202124;
+      letter-spacing: -0.5px;
+    }
+    .btn-logout {
+      padding: 8px 24px;
+      background: transparent;
+      color: #1a73e8;
+      border: 1px solid #dadce0;
+      border-radius: 4px;
       font-size: 14px;
-      opacity: 0.9;
-    }
-    header a:hover { opacity: 1; }
-    main {
-      padding: 24px;
-      max-width: 900px;
-      margin: 0 auto;
-    }
-    .card {
-      background: white;
-      border-radius: 12px;
-      padding: 16px 20px;
-      border: 1px solid #e5e7eb;
-      box-shadow: 0 10px 20px rgba(0,0,0,0.04);
-    }
-    .card h2 { margin-top: 0; }
-    ul {
-      list-style: none;
-      padding-left: 0;
-      margin: 0;
-    }
-    li + li { margin-top: 6px; }
-    .pill {
-      display: inline-block;
-      padding: 2px 8px;
-      border-radius: 999px;
-      font-size: 12px;
-      background: #fef9c3;
-      color: #854d0e;
-      margin-right: 8px;
-    }
-    a.link {
-      color: #2563eb;
-      text-decoration: none;
       font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s;
+      text-decoration: none;
+      display: inline-block;
     }
-    a.link:hover { text-decoration: underline; }
-    .back { margin-top: 12px; font-size: 14px; }
-    .meta { font-size: 13px; color: #6b7280; }
+    .btn-logout:hover {
+      background: #f8f9fa;
+      border-color: #1a73e8;
+    }
+    .main-container {
+      max-width: 1440px;
+      margin: 0 auto;
+      padding: 32px 24px;
+    }
+    .section-header {
+      margin-bottom: 24px;
+    }
+    .section-title {
+      font-size: 28px;
+      font-weight: 400;
+      color: #202124;
+      margin-bottom: 8px;
+    }
+    .section-subtitle {
+      font-size: 14px;
+      color: #5f6368;
+    }
+    .timeline {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .day-card {
+      background: #ffffff;
+      border: 1px solid #e8eaed;
+      border-radius: 8px;
+      padding: 20px 24px;
+      transition: all 0.2s;
+      cursor: pointer;
+      text-decoration: none;
+      color: inherit;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .day-card:hover {
+      box-shadow: 0 1px 3px rgba(60, 64, 67, 0.3), 0 4px 8px rgba(60, 64, 67, 0.15);
+      border-color: #dadce0;
+    }
+    .day-info {
+      flex: 1;
+    }
+    .day-date {
+      font-size: 16px;
+      font-weight: 500;
+      color: #202124;
+      margin-bottom: 4px;
+    }
+    .day-count {
+      font-size: 13px;
+      color: #5f6368;
+    }
+    .day-arrow {
+      color: #5f6368;
+      font-size: 18px;
+    }
+    .empty-state {
+      text-align: center;
+      padding: 80px 20px;
+      color: #5f6368;
+    }
+    .empty-state-icon {
+      font-size: 64px;
+      margin-bottom: 16px;
+      opacity: 0.3;
+    }
+    .empty-state-text {
+      font-size: 16px;
+    }
   </style>
 </head>
 <body>
-  <header>
-    <h1>{{ site_name }}</h1>
-    <a href="{{ url_for('logout') }}">Logout</a>
-  </header>
-  <main>
-    <div class="card">
-      <h2>User: {{ username }}</h2>
-      <ul>
-      {% if days %}
-        {% for d in days %}
-          <li>
-            <span class="pill">day</span>
-            <a class="link" href="{{ url_for('view_day', username=username, day=d.day) }}">{{ d.day }}</a>
-            <span class="meta">({{ d.files }} screenshot(s))</span>
-          </li>
-        {% endfor %}
-      {% else %}
-        <li>No days yet.</li>
-      {% endif %}
-      </ul>
-      <p class="back">
-        <a class="link" href="{{ url_for('index') }}">← Back to users</a>
-      </p>
+  <header class="header">
+    <div class="header-left">
+      <a href="{{ url_for('index') }}" class="btn-back">←</a>
+      <h1>{{ username }}</h1>
     </div>
-  </main>
+    <a href="{{ url_for('logout') }}" class="btn-logout">Sign out</a>
+  </header>
+
+  <div class="main-container">
+    <div class="section-header">
+      <h2 class="section-title">Timeline</h2>
+      {% if days %}
+      <p class="section-subtitle">{{ days|length }} day{% if days|length != 1 %}s{% endif %} of photos</p>
+      {% endif %}
+    </div>
+
+    {% if days %}
+      <div class="timeline">
+        {% for d in days %}
+          <a href="{{ url_for('view_day', username=username, day=d.day) }}" class="day-card">
+            <div class="day-info">
+              <div class="day-date">{{ d.day }}</div>
+              <div class="day-count">{{ d.files }} photo{% if d.files != 1 %}s{% endif %}</div>
+            </div>
+            <div class="day-arrow">→</div>
+          </a>
+        {% endfor %}
+      </div>
+    {% else %}
+      <div class="empty-state">
+        <div class="empty-state-icon">📅</div>
+        <div class="empty-state-text">No photos yet</div>
+      </div>
+    {% endif %}
+  </div>
 </body>
 </html>
 """
@@ -466,162 +690,404 @@ DAY_TEMPLATE = """
 <html lang="en">
 <head>
   <meta charset="utf-8">
-  <title>{{ username }} – {{ day }} – {{ site_name }}</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{{ day }} – {{ username }} – {{ site_name }}</title>
   <style>
-    body {
+    * {
       margin: 0;
-      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-      background: #f9fafb;
-      color: #111827;
+      padding: 0;
+      box-sizing: border-box;
     }
-    header {
-      background: #2563eb;
-      color: white;
+    body {
+      font-family: 'Segoe UI', 'Google Sans', Roboto, -apple-system, BlinkMacSystemFont, sans-serif;
+      background: #ffffff;
+      color: #202124;
+      min-height: 100vh;
+    }
+    .header {
+      background: #ffffff;
+      border-bottom: 1px solid #e8eaed;
       padding: 16px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+    .header-left {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+    .btn-back {
+      padding: 8px;
+      background: transparent;
+      border: none;
+      color: #5f6368;
+      cursor: pointer;
+      font-size: 20px;
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      transition: color 0.2s;
+    }
+    .btn-back:hover {
+      color: #202124;
+    }
+    .header-title {
+      display: flex;
+      flex-direction: column;
+    }
+    .header h1 {
+      font-size: 22px;
+      font-weight: 400;
+      color: #202124;
+      letter-spacing: -0.5px;
+    }
+    .header-subtitle {
+      font-size: 13px;
+      color: #5f6368;
+    }
+    .btn-logout {
+      padding: 8px 24px;
+      background: transparent;
+      color: #1a73e8;
+      border: 1px solid #dadce0;
+      border-radius: 4px;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s;
+      text-decoration: none;
+      display: inline-block;
+    }
+    .btn-logout:hover {
+      background: #f8f9fa;
+      border-color: #1a73e8;
+    }
+    .main-container {
+      max-width: 1600px;
+      margin: 0 auto;
+      padding: 24px;
+    }
+    .toolbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 24px;
+      padding: 12px 0;
+    }
+    .view-controls {
+      display: flex;
+      gap: 8px;
+    }
+    .btn-view {
+      padding: 8px 12px;
+      background: transparent;
+      border: 1px solid #dadce0;
+      border-radius: 4px;
+      color: #5f6368;
+      cursor: pointer;
+      font-size: 13px;
+      transition: all 0.2s;
+    }
+    .btn-view.active {
+      background: #e8f0fe;
+      color: #1a73e8;
+      border-color: #1a73e8;
+    }
+    .btn-view:hover:not(.active) {
+      background: #f8f9fa;
+      border-color: #5f6368;
+    }
+    .photo-count {
+      font-size: 14px;
+      color: #5f6368;
+    }
+    .photo-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 4px;
+      margin-bottom: 40px;
+    }
+    .photo-grid.comfortable {
+      gap: 8px;
+      grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    }
+    .photo-grid.cozy {
+      gap: 16px;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    }
+    .photo-item {
+      position: relative;
+      cursor: pointer;
+      overflow: hidden;
+      background: #f8f9fa;
+      border-radius: 2px;
+      aspect-ratio: 1;
+    }
+    .photo-grid.comfortable .photo-item,
+    .photo-grid.cozy .photo-item {
+      border-radius: 4px;
+    }
+    .photo-item img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform 0.2s;
+    }
+    .photo-item:hover img {
+      transform: scale(1.05);
+    }
+    .photo-item:hover::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.1);
+    }
+    .modal {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.9);
+      z-index: 100;
+      align-items: center;
+      justify-content: center;
+    }
+    .modal.active {
+      display: flex;
+    }
+    .modal-content {
+      position: relative;
+      max-width: 95vw;
+      max-height: 95vh;
+      display: flex;
+      flex-direction: column;
+    }
+    .modal-header {
       display: flex;
       justify-content: space-between;
       align-items: center;
-    }
-    header h1 { margin: 0; font-size: 20px; }
-    header a {
-      color: white;
-      text-decoration: none;
-      font-size: 14px;
-      opacity: 0.9;
-    }
-    header a:hover { opacity: 1; }
-    main {
-      padding: 24px;
-      max-width: 1100px;
-      margin: 0 auto;
-    }
-    .card {
-      background: white;
-      border-radius: 12px;
       padding: 16px 20px;
-      border: 1px solid #e5e7eb;
-      box-shadow: 0 10px 20px rgba(0,0,0,0.04);
+      background: rgba(0, 0, 0, 0.8);
     }
-    .card h2 { margin-top: 0; }
-    .thumb-grid {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 12px;
-    }
-    .thumb-card {
-      background: #f9fafb;
-      border-radius: 8px;
-      border: 1px solid #e5e7eb;
-      padding: 8px;
-      max-width: 260px;
-      cursor: pointer;
-    }
-    .thumb-card img {
-      max-width: 100%;
-      border-radius: 4px;
-      display: block;
-    }
-    .thumb-card p {
-      margin: 4px 0 0 0;
-      font-size: 12px;
-      color: #4b5563;
-      word-break: break-all;
-    }
-    a.link {
-      color: #2563eb;
-      text-decoration: none;
+    .modal-filename {
+      color: #e8eaed;
+      font-size: 14px;
       font-weight: 500;
     }
-    a.link:hover { text-decoration: underline; }
-    .back { margin-top: 12px; font-size: 14px; }
-
-    /* Modal preview */
-    .modal-backdrop {
-      position: fixed;
-      inset: 0;
-      background: rgba(0,0,0,0.6);
-      display: none;
+    .modal-close {
+      background: transparent;
+      border: none;
+      color: #e8eaed;
+      font-size: 28px;
+      cursor: pointer;
+      padding: 0;
+      width: 32px;
+      height: 32px;
+      display: flex;
       align-items: center;
       justify-content: center;
-      z-index: 50;
+      border-radius: 50%;
+      transition: background 0.2s;
     }
-    .modal-content {
-      background: #111827;
-      padding: 12px;
-      border-radius: 8px;
-      max-width: 90vw;
-      max-height: 90vh;
+    .modal-close:hover {
+      background: rgba(255, 255, 255, 0.1);
     }
-    .modal-content img {
+    .modal-image-container {
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex: 1;
+    }
+    .modal-image {
       max-width: 100%;
       max-height: 85vh;
-      display: block;
-      border-radius: 4px;
+      object-fit: contain;
     }
-    .modal-caption {
-      margin-top: 6px;
-      font-size: 12px;
-      color: #e5e7eb;
-      word-break: break-all;
+    .modal-nav {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      background: rgba(0, 0, 0, 0.6);
+      border: none;
+      color: white;
+      font-size: 32px;
+      cursor: pointer;
+      padding: 20px 16px;
+      border-radius: 4px;
+      transition: all 0.2s;
+      z-index: 101;
+    }
+    .modal-nav:hover {
+      background: rgba(0, 0, 0, 0.8);
+    }
+    .modal-nav.prev {
+      left: 20px;
+    }
+    .modal-nav.next {
+      right: 20px;
+    }
+    .modal-nav:disabled {
+      opacity: 0.3;
+      cursor: not-allowed;
+    }
+    .empty-state {
+      text-align: center;
+      padding: 80px 20px;
+      color: #5f6368;
+    }
+    .empty-state-icon {
+      font-size: 64px;
+      margin-bottom: 16px;
+      opacity: 0.3;
+    }
+    .empty-state-text {
+      font-size: 16px;
     }
   </style>
-  <script>
-    function openPreview(src, caption) {
-      const backdrop = document.getElementById('modal-backdrop');
-      const img = document.getElementById('modal-img');
-      const cap = document.getElementById('modal-caption');
-      img.src = src;
-      cap.textContent = caption;
-      backdrop.style.display = 'flex';
-    }
-    function closePreview() {
-      const backdrop = document.getElementById('modal-backdrop');
-      backdrop.style.display = 'none';
-    }
-    document.addEventListener('keydown', function(e) {
-      if (e.key === 'Escape') {
-        closePreview();
-      }
-    });
-  </script>
 </head>
 <body>
-  <header>
-    <h1>{{ site_name }}</h1>
-    <a href="{{ url_for('logout') }}">Logout</a>
+  <header class="header">
+    <div class="header-left">
+      <a href="{{ url_for('view_user', username=username) }}" class="btn-back">←</a>
+      <div class="header-title">
+        <h1>{{ day }}</h1>
+        <span class="header-subtitle">{{ username }}</span>
+      </div>
+    </div>
+    <a href="{{ url_for('logout') }}" class="btn-logout">Sign out</a>
   </header>
-  <main>
-    <div class="card">
-      <h2>{{ username }} – {{ day }}</h2>
-      <p class="back">
-        <a class="link" href="{{ url_for('view_user', username=username) }}">← Back to days</a>
-      </p>
-      {% if files %}
-      <div class="thumb-grid">
+
+  <div class="main-container">
+    {% if files %}
+      <div class="toolbar">
+        <div class="photo-count">{{ files|length }} photo{% if files|length != 1 %}s{% endif %}</div>
+        <div class="view-controls">
+          <button class="btn-view active" onclick="setView('compact')">Compact</button>
+          <button class="btn-view" onclick="setView('comfortable')">Comfortable</button>
+          <button class="btn-view" onclick="setView('cozy')">Cozy</button>
+        </div>
+      </div>
+
+      <div class="photo-grid" id="photoGrid">
         {% for fname in files %}
-          <div class="thumb-card" onclick="openPreview('{{ url_for('serve_file', username=username, day=day, filename=fname) }}', '{{ fname }}')">
-            <img src="{{ url_for('serve_file', username=username, day=day, filename=fname) }}">
-            <p>{{ fname }}</p>
+          <div class="photo-item" onclick="openModal({{ loop.index0 }})">
+            <img src="{{ url_for('serve_file', username=username, day=day, filename=fname) }}" 
+                 alt="{{ fname }}"
+                 loading="lazy">
           </div>
         {% endfor %}
       </div>
-      {% else %}
-        <p>No screenshots for this day.</p>
-      {% endif %}
-    </div>
-  </main>
+    {% else %}
+      <div class="empty-state">
+        <div class="empty-state-icon">📷</div>
+        <div class="empty-state-text">No photos for this day</div>
+      </div>
+    {% endif %}
+  </div>
 
-  <!-- Modal -->
-  <div class="modal-backdrop" id="modal-backdrop" onclick="closePreview()">
+  <div class="modal" id="modal" onclick="closeModal(event)">
     <div class="modal-content" onclick="event.stopPropagation()">
-      <img id="modal-img" src="">
-      <div class="modal-caption" id="modal-caption"></div>
+      <div class="modal-header">
+        <span class="modal-filename" id="modalFilename"></span>
+        <button class="modal-close" onclick="closeModal()">&times;</button>
+      </div>
+      <div class="modal-image-container">
+        <button class="modal-nav prev" id="prevBtn" onclick="navigateModal(-1)">‹</button>
+        <img class="modal-image" id="modalImage" src="" alt="">
+        <button class="modal-nav next" id="nextBtn" onclick="navigateModal(1)">›</button>
+      </div>
     </div>
   </div>
+
+  <script>
+    const photos = [
+      {% for fname in files %}
+      {
+        url: "{{ url_for('serve_file', username=username, day=day, filename=fname) }}",
+        filename: "{{ fname }}"
+      }{% if not loop.last %},{% endif %}
+      {% endfor %}
+    ];
+
+    let currentIndex = 0;
+
+    function setView(view) {
+      const grid = document.getElementById('photoGrid');
+      const buttons = document.querySelectorAll('.btn-view');
+      
+      buttons.forEach(btn => btn.classList.remove('active'));
+      event.target.classList.add('active');
+      
+      grid.className = 'photo-grid';
+      if (view !== 'compact') {
+        grid.classList.add(view);
+      }
+      
+      localStorage.setItem('photoGridView', view);
+    }
+
+    function openModal(index) {
+      currentIndex = index;
+      updateModal();
+      document.getElementById('modal').classList.add('active');
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closeModal(event) {
+      if (event && event.target.classList.contains('modal-content')) {
+        return;
+      }
+      document.getElementById('modal').classList.remove('active');
+      document.body.style.overflow = '';
+    }
+
+    function navigateModal(direction) {
+      currentIndex += direction;
+      if (currentIndex < 0) currentIndex = 0;
+      if (currentIndex >= photos.length) currentIndex = photos.length - 1;
+      updateModal();
+    }
+
+    function updateModal() {
+      const photo = photos[currentIndex];
+      document.getElementById('modalImage').src = photo.url;
+      document.getElementById('modalFilename').textContent = photo.filename;
+      
+      document.getElementById('prevBtn').disabled = currentIndex === 0;
+      document.getElementById('nextBtn').disabled = currentIndex === photos.length - 1;
+    }
+
+    document.addEventListener('keydown', function(e) {
+      const modal = document.getElementById('modal');
+      if (!modal.classList.contains('active')) return;
+      
+      if (e.key === 'Escape') {
+        closeModal();
+      } else if (e.key === 'ArrowLeft') {
+        navigateModal(-1);
+      } else if (e.key === 'ArrowRight') {
+        navigateModal(1);
+      }
+    });
+
+    const savedView = localStorage.getItem('photoGridView');
+    if (savedView && savedView !== 'compact') {
+      document.getElementById('photoGrid').classList.add(savedView);
+      document.querySelectorAll('.btn-view').forEach(btn => {
+        btn.classList.remove('active');
+        if (btn.textContent.toLowerCase() === savedView) {
+          btn.classList.add('active');
+        }
+      });
+    }
+  </script>
 </body>
 </html>
 """
-
 
 # ==========================================================
 #  Web routes
@@ -776,4 +1242,3 @@ if __name__ == "__main__":
         # Dev server only. For real use, prefer gunicorn:
         #   gunicorn --bind 127.0.0.1:5000 --workers 3 --threads 4 tor_server:app
         app.run(host="192.168.0.24", port=5000, debug=False)
-
