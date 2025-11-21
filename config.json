@@ -1,10 +1,11 @@
 {
-    "interval_seconds": 10,
-    "screenshot_folder": "C:/Users/CiscoAnass/Pictures/Security",
-    "enable_mega": true,
-    "mega_email": "YOUR_MEGA_EMAIL",
-    "mega_password": "YOUR_MEGA+PASSWORD",
-    "upload_batch_size": 10,
-    "max_folder_size_mb": 500,
-    "log_file": "screen_guard.log"
+  "interval_seconds": 10,
+  "screenshot_folder": "C:/Utilisateurs/Nesrin/Images",
+  "server_url": "http://bv8sdvbfsdfb8sado.onion",
+  "upload_password": "API_Mot_de_pass",
+  "upload_batch_size": 10,
+  "max_folder_size_mb": 500,
+  "tor_socks_proxy": "socks5h://127.0.0.1:9050",
+  "log_file": "screen_guard.log"
 }
+
