@@ -1,6 +1,6 @@
-# ShotLogger – Self‑Hosted Tor Screen Logger (Personal Use Only)
+# TorCap – Self‑Hosted Tor Screen Logger (Personal Use Only)
 
-ShotLogger is a **personal** tool that:
+TorCap is a **personal** tool that:
 
 - Captures screenshots on your **own Windows accounts** at a fixed interval.
 - Sends them over **Tor** to your **own Debian server** running a private `.onion` site.
@@ -10,7 +10,7 @@ ShotLogger is a **personal** tool that:
 > Do **not** use it to spy on other people or devices you do not own or control.  
 > The design is transparent and avoids stealthy / malware‑style behavior as much as possible.
 
-The compiled ShotLogger.exe has already been scanned for transparency — you can view the full VirusTotal analysis here: [Total Virus Result](https://www.virustotal.com/gui/file/30bb13ebf1b993ff8ef7d6b4166175ee392b832c195109f902bc0069e5fb671a)
+The compiled TorCap.exe has already been scanned for transparency — you can view the full VirusTotal analysis here: [Total Virus Result](https://www.virustotal.com/gui/file/30bb13ebf1b993ff8ef7d6b4166175ee392b832c195109f902bc0069e5fb671a)
 
 ⚠️ **Note:** Tools compiled with PyInstaller often trigger **generic flags** such as  
 _"Win64:Malware-gen"_, _"Suspicious PE"_, or _"BehavesLike.Win64.Generic"_.  
@@ -34,7 +34,7 @@ There are two components:
    - Exposed via Tor as a **hidden service** (e.g. `xyz123.onion`).
    - Stores screenshots on disk under a root folder, like:
      ```text
-     /home/youruser/shotlogger_data/
+     /home/youruser/TorCap_data/
        ├─ CiscoAnass/
        │   ├─ 21-11-2025/
        │   │   ├─ screenshot_20251121_000918.png
@@ -46,7 +46,7 @@ There are two components:
      - Login with your admin credentials.
      - See **users → days → thumbnails**, and click thumbnails to preview full images.
 
-2. **Client (Windows)** – `app.py` → `ShotLogger.exe`
+2. **Client (Windows)** – `app.py` → `TorCap.exe`
    - Runs in the background when the user logs in (via Task Scheduler).
    - Takes screenshots every _N_ seconds (default `10`).
    - Stores them temporarily in a local folder (e.g. `C:\Users\CiscoAnass\Pictures\Security\DD-MM-YYYY`).
@@ -83,7 +83,7 @@ For **building** the EXE:
 
 For **running** the EXE on each Windows PC:
 
-- Only the **built EXE** (e.g. `ShotLogger.exe`)
+- Only the **built EXE** (e.g. `TorCap.exe`)
 - A matching `config.json` in the same folder
 - Tor connectivity (typically Tor Browser or Tor service providing a SOCKS proxy on `127.0.0.1:9050` or `127.0.0.1:9150`)
 
@@ -97,8 +97,8 @@ For **running** the EXE on each Windows PC:
 sudo apt update
 sudo apt install python3 python3-venv python3-pip tor
 
-mkdir -p ~/shotlogger
-cd ~/shotlogger
+mkdir -p ~/TorCap
+cd ~/TorCap
 
 python3 -m venv venv
 source venv/bin/activate
@@ -106,22 +106,22 @@ source venv/bin/activate
 pip install flask
 ```
 
-Copy these files into `~/shotlogger`:
+Copy these files into `~/TorCap`:
 
 - `tor_server.py`
 - `server_config.json` (you will create it in the next step)
 
 ### 3.2 Create `server_config.json`
 
-In `~/shotlogger/server_config.json`:
+In `~/TorCap/server_config.json`:
 
 ```json
 {
-  "root_folder": "/home/youruser/shotlogger_data",
+  "root_folder": "/home/youruser/TorCap_data",
   "web_username": "anass",
   "web_password": "CHANGE_THIS_WEB_PASSWORD",
   "upload_password": "CHANGE_THIS_UPLOAD_PASSWORD",
-  "site_name": "ShotLogger",
+  "site_name": "TorCap",
   "session_secret": "CHANGE_THIS_SESSION_SECRET"
 }
 ```
@@ -146,7 +146,7 @@ sudo nano /etc/tor/torrc
 Add this at the end (if not already present):
 
 ```text
-HiddenServiceDir /var/lib/tor/shotlogger_service/
+HiddenServiceDir /var/lib/tor/TorCap_service/
 HiddenServicePort 80 127.0.0.1:5000
 ```
 
@@ -159,7 +159,7 @@ sudo systemctl restart tor
 Get your `.onion` address:
 
 ```bash
-sudo cat /var/lib/tor/shotlogger_service/hostname
+sudo cat /var/lib/tor/TorCap_service/hostname
 ```
 
 Example output:
@@ -175,10 +175,10 @@ This is the URL you will use in:
 
 ### 3.4 Run the Flask server
 
-From `~/shotlogger`:
+From `~/TorCap`:
 
 ```bash
-cd ~/shotlogger
+cd ~/TorCap
 source venv/bin/activate
 python tor_server.py
 ```
@@ -204,7 +204,7 @@ You should see:
 
 ## 4. Windows Client Setup (builder machine)
 
-You only need to do this on the machine where you **build** `ShotLogger.exe`.
+You only need to do this on the machine where you **build** `TorCap.exe`.
 
 ### 4.1 Create project folder & virtualenv
 
@@ -212,8 +212,8 @@ On Windows (PowerShell):
 
 ```powershell
 cd C:\Users\YourUser\Desktop
-mkdir shotlogger
-cd .\shotlogger
+mkdir TorCap
+cd .\TorCap
 
 python -m venv venv
 .\venv\Scripts\activate
@@ -223,7 +223,7 @@ pip install mss requests pysocks pyinstaller
 
 Copy into this folder:
 
-- `app.py` (ShotLogger client)
+- `app.py` (TorCap client)
 - `config.json` (client config template)
 
 ### 4.2 Create `config.json` (client)
@@ -265,21 +265,21 @@ Check `screen_guard.log` and your server’s `root_folder` to confirm uploads ar
 
 ### 4.3 Build the EXE
 
-Use PyInstaller to build a single‑file EXE with a clean, honest name (e.g. `ShotLogger.exe`):
+Use PyInstaller to build a single‑file EXE with a clean, honest name (e.g. `TorCap.exe`):
 
 ```powershell
 .\venv\Scripts\activate
 
 pyinstaller --onefile --noconsole `
-  --icon="C:\Users\YourUser\Desktop\shotlogger\shotlogger.ico" `
-  --name="ShotLogger" `
-  "C:\Users\YourUser\Desktop\shotlogger\app.py"
+  --icon="C:\Users\YourUser\Desktop\TorCap\TorCap.ico" `
+  --name="TorCap" `
+  "C:\Users\YourUser\Desktop\TorCap\app.py"
 ```
 
 After it finishes, you will get:
 
 ```text
-C:\Users\YourUser\Desktop\shotlogger\dist\ShotLogger.exe
+C:\Users\YourUser\Desktop\TorCap\dist\TorCap.exe
 ```
 
 This file is what you deploy to your Windows PCs.
@@ -296,12 +296,12 @@ You do **not** need Python on every PC, only the EXE + config.
 On each Windows machine, choose a folder like:
 
 ```text
-C:\Program Files\ShotLogger\
+C:\Program Files\TorCap\
 ```
 
 Copy into that folder:
 
-- `ShotLogger.exe`
+- `TorCap.exe`
 - `config.json`
 
 You can adjust `config.json` per machine if needed (e.g. different `screenshot_folder`).
@@ -311,18 +311,18 @@ You can adjust `config.json` per machine if needed (e.g. different `screenshot_f
 1. Open **Task Scheduler**.
 2. Click **Create Task…** (not “Basic Task” for more options if you prefer).
 3. **General** tab:
-   - Name: `ShotLogger`
+   - Name: `TorCap`
    - “Run only when user is logged on” (recommended for a transparent tool).
 4. **Triggers** tab → **New…**:
    - Begin the task: “At log on”
    - Settings: “Any user” or a specific user (your choice).
 5. **Actions** tab → **New…**:
    - Action: “Start a program”
-   - Program/script: `C:\Program Files\ShotLogger\ShotLogger.exe`
-   - Start in (optional but recommended): `C:\Program Files\ShotLogger\`
+   - Program/script: `C:\Program Files\TorCap\TorCap.exe`
+   - Start in (optional but recommended): `C:\Program Files\TorCap\`
 6. Click **OK** to save.
 
-Now, each time that user logs in, `ShotLogger.exe` will start, capture screenshots, and upload them to your Tor server.
+Now, each time that user logs in, `TorCap.exe` will start, capture screenshots, and upload them to your Tor server.
 
 ---
 
@@ -383,7 +383,7 @@ Now, each time that user logs in, `ShotLogger.exe` will start, capture screensho
   - You own the Windows PCs / user accounts.
 - Do **not** deploy it on machines you don’t own, or users you don’t have a clear agreement with.
 - The client:
-  - Uses a clear folder (`ShotLogger`, `ShotLogger.exe`) if you choose so.
+  - Uses a clear folder (`TorCap`, `TorCap.exe`) if you choose so.
   - Uses standard, legitimate persistence (Windows Task Scheduler).
   - Avoids stealth techniques like hiding processes, rootkits, registry abuse, etc.
 - Network:
@@ -392,7 +392,7 @@ Now, each time that user logs in, `ShotLogger.exe` will start, capture screensho
 - Antivirus:
   - Some AV engines may flag any app that captures screens + auto‑starts + talks over Tor.
   - Since this is just for your own lab, the most honest way to handle that is:
-    - Use a clear, honest program name (`ShotLogger.exe`).
+    - Use a clear, honest program name (`TorCap.exe`).
     - Add an **exception** in your own AV for this file/folder if needed.
 
 ---
@@ -407,7 +407,7 @@ Now, each time that user logs in, `ShotLogger.exe` will start, capture screensho
   - Look at the Windows log file (`screen_guard.log` next to the EXE).
   - Look under `root_folder` on Debian:
     ```bash
-    ls -R /home/youruser/shotlogger_data
+    ls -R /home/youruser/TorCap_data
     ```
 - If you only see folders on disk but not in UI, ensure:
   - `root_folder` in `server_config.json` is exactly the parent directory containing the username folders.
