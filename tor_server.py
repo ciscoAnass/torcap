@@ -7,11 +7,14 @@ import getpass
 import os
 import hashlib
 import hmac
+import shutil
+import zipfile
+from io import BytesIO
 
 from flask import (
     Flask, request, redirect, url_for,
     render_template_string, send_from_directory,
-    session, abort
+    session, abort, send_file
 )
 from werkzeug.utils import secure_filename
 
@@ -596,6 +599,11 @@ USER_TEMPLATE = """
       flex-direction: column;
       gap: 8px;
     }
+    .day-row {
+      display: flex;
+      gap: 8px;
+      align-items: stretch;
+    }
     .day-card {
       background: #ffffff;
       border: 1px solid #e8eaed;
@@ -608,6 +616,7 @@ USER_TEMPLATE = """
       display: flex;
       align-items: center;
       justify-content: space-between;
+      flex: 1;
     }
     .day-card:hover {
       box-shadow: 0 1px 3px rgba(60, 64, 67, 0.3), 0 4px 8px rgba(60, 64, 67, 0.15);
@@ -629,6 +638,33 @@ USER_TEMPLATE = """
     .day-arrow {
       color: #5f6368;
       font-size: 18px;
+    }
+    .day-actions {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .btn-day {
+      padding: 8px 12px;
+      background: transparent;
+      border: 1px solid #dadce0;
+      border-radius: 4px;
+      font-size: 12px;
+      color: #5f6368;
+      cursor: pointer;
+      text-decoration: none;
+      transition: all 0.2s;
+      white-space: nowrap;
+    }
+    .btn-day:hover {
+      background: #f8f9fa;
+    }
+    .btn-day-danger {
+      color: #d93025;
+      border-color: #f28b82;
+    }
+    .btn-day-danger:hover {
+      background: #fce8e6;
     }
     .empty-state {
       text-align: center;
@@ -665,13 +701,27 @@ USER_TEMPLATE = """
     {% if days %}
       <div class="timeline">
         {% for d in days %}
-          <a href="{{ url_for('view_day', username=username, day=d.day) }}" class="day-card">
-            <div class="day-info">
-              <div class="day-date">{{ d.day }}</div>
-              <div class="day-count">{{ d.files }} photo{% if d.files != 1 %}s{% endif %}</div>
+          <div class="day-row">
+            <a href="{{ url_for('view_day', username=username, day=d.day) }}" class="day-card">
+              <div class="day-info">
+                <div class="day-date">{{ d.day }}</div>
+                <div class="day-count">{{ d.files }} photo{% if d.files != 1 %}s{% endif %}</div>
+              </div>
+              <div class="day-arrow">→</div>
+            </a>
+            <div class="day-actions">
+              <a href="{{ url_for('download_day', username=username, day=d.day) }}" class="btn-day">
+                Download
+              </a>
+              <form method="POST"
+                    action="{{ url_for('delete_day', username=username, day=d.day) }}"
+                    onsubmit="return confirm('Delete this folder and all its photos from disk?');">
+                <button type="submit" class="btn-day btn-day-danger">
+                  Delete
+                </button>
+              </form>
             </div>
-            <div class="day-arrow">→</div>
-          </a>
+          </div>
         {% endfor %}
       </div>
     {% else %}
@@ -831,6 +881,30 @@ DAY_TEMPLATE = """
     .photo-grid.cozy .photo-item {
       border-radius: 4px;
     }
+    .photo-delete-form {
+      position: absolute;
+      top: 6px;
+      right: 6px;
+      z-index: 5;
+    }
+    .photo-delete-button {
+      border: none;
+      border-radius: 50%;
+      width: 24px;
+      height: 24px;
+      font-size: 16px;
+      line-height: 1;
+      cursor: pointer;
+      background: rgba(0, 0, 0, 0.6);
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.2s;
+    }
+    .photo-delete-button:hover {
+      background: rgba(0, 0, 0, 0.8);
+    }
     .photo-item img {
       width: 100%;
       height: 100%;
@@ -978,6 +1052,16 @@ DAY_TEMPLATE = """
             <img src="{{ url_for('serve_file', username=username, day=day, filename=fname) }}" 
                  alt="{{ fname }}"
                  loading="lazy">
+            <form class="photo-delete-form"
+                  method="POST"
+                  action="{{ url_for('delete_file', username=username, day=day, filename=fname) }}"
+                  onsubmit="return confirm('Delete this photo permanently from disk?');">
+              <button type="submit"
+                      class="photo-delete-button"
+                      onclick="event.stopPropagation();">
+                ×
+              </button>
+            </form>
           </div>
         {% endfor %}
       </div>
@@ -1194,6 +1278,66 @@ def serve_file(username, day, filename):
     if not day_dir.exists():
         abort(404)
     return send_from_directory(day_dir, filename)
+
+
+@app.route("/user/<username>/<day>/<filename>/delete", methods=["POST"])
+@login_required
+def delete_file(username, day, filename):
+    # Validate path parts to avoid traversal
+    if not (validate_identifier(username) and validate_identifier(day) and validate_identifier(filename)):
+        abort(400)
+
+    file_path = ROOT_FOLDER / username / day / filename
+    if not file_path.exists() or not file_path.is_file():
+        abort(404)
+
+    file_path.unlink()
+
+    # After deletion, go back to the day view
+    return redirect(url_for("view_day", username=username, day=day))
+
+
+@app.route("/user/<username>/<day>/delete", methods=["POST"])
+@login_required
+def delete_day(username, day):
+    if not (validate_identifier(username) and validate_identifier(day)):
+        abort(400)
+
+    day_dir = ROOT_FOLDER / username / day
+    if not day_dir.exists() or not day_dir.is_dir():
+        abort(404)
+
+    # Remove the whole folder with all images inside
+    shutil.rmtree(day_dir)
+
+    return redirect(url_for("view_user", username=username))
+
+
+@app.route("/download/<username>/<day>")
+@login_required
+def download_day(username, day):
+    if not (validate_identifier(username) and validate_identifier(day)):
+        abort(400)
+
+    day_dir = ROOT_FOLDER / username / day
+    if not day_dir.exists() or not day_dir.is_dir():
+        abort(404)
+
+    mem_file = BytesIO()
+    with zipfile.ZipFile(mem_file, mode="w", compression=zipfile.ZIP_DEFLATED) as zf:
+        for f in day_dir.iterdir():
+            if f.is_file():
+                # Add each file to ZIP with just its filename
+                zf.write(f, arcname=f.name)
+    mem_file.seek(0)
+
+    zip_name = f"{username}_{day}.zip"
+    return send_file(
+        mem_file,
+        mimetype="application/zip",
+        as_attachment=True,
+        download_name=zip_name,
+    )
 
 
 # ==========================================================
