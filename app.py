@@ -30,6 +30,16 @@ def setup_logging(log_file: str) -> None:
     logger = logging.getLogger()
     logger.setLevel(logging.INFO)
 
+    for h in list(logger.handlers):
+        logger.removeHandler(h)
+
+    log_path = Path(log_file)
+    try:
+        if log_path.exists():
+            log_path.unlink()
+    except Exception as e:
+        print(f"[WARN] Could not delete old log file {log_path}: {e}", file=sys.stderr)
+
     formatter = logging.Formatter(
         "[%(asctime)s] [%(levelname)s] %(message)s",
         datefmt="%Y-%m-%d %H:%M:%S"

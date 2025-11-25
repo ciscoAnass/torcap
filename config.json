@@ -5,7 +5,7 @@
   "upload_password": "API_Mot_de_pass",
   "upload_batch_size": 10,
   "max_folder_size_mb": 500,
-  "tor_socks_proxy": "socks5h://127.0.0.1:9050",
+  "tor_socks_proxy": "socks5h://127.0.0.1:9150",
   "log_file": "screen_guard.log"
 }
 
